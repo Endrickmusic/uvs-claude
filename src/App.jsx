@@ -6,11 +6,13 @@ import Controls from "./components/Controls"
 import StandardUV from "./scenes/StandardUV"
 import ScreenSpaceUV from "./scenes/ScreenSpaceUV"
 import WorldSpaceUV from "./scenes/WorldSpaceUV"
+import LocalScreenSpaceUV from "./scenes/LocalScreenSpaceUV"
 
 const scenes = {
   standard: StandardUV,
   screenSpace: ScreenSpaceUV,
   worldSpace: WorldSpaceUV,
+  localScreenSpace: LocalScreenSpaceUV,
   // Add more scenes here as you implement them
 }
 

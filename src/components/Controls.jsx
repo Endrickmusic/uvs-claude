@@ -7,6 +7,9 @@ const Controls = ({ setScene }) => {
       <button onClick={() => setScene("standard")}>Standard UV</button>
       <button onClick={() => setScene("screenSpace")}>Screen Space UV</button>
       <button onClick={() => setScene("worldSpace")}>World Space UV</button>
+      <button onClick={() => setScene("localScreenSpace")}>
+        Local Screen Space UV
+      </button>
       {/* Add more buttons for other UV types */}
     </div>
   )
