@@ -1,25 +1,32 @@
+// src/App.jsx
+import React, { useState } from "react"
 import { Canvas } from "@react-three/fiber"
-import { Environment } from "@react-three/drei"
+import { OrbitControls } from "@react-three/drei"
+import Controls from "./components/Controls"
+import StandardUV from "./scenes/StandardUV"
+import ScreenSpaceUV from "./scenes/ScreenSpaceUV"
+import WorldSpaceUV from "./scenes/WorldSpaceUV"
 
-import './index.css'
-
-import Experience from "./Experience"
-
-
-export default function App() {
-
- return (
-
-  
-    <Canvas shadows camera={{ position: [0, 0, 4], fov: 40 }}>
-      <Environment
-        files="./textures/envmap.hdr" />
-        <color 
-          attach="background" 
-          args={["#eeeeee"]} />
-      <Experience />
-    </Canvas>
-  
-  );
+const scenes = {
+  standard: StandardUV,
+  screenSpace: ScreenSpaceUV,
+  worldSpace: WorldSpaceUV,
+  // Add more scenes here as you implement them
 }
 
+function App() {
+  const [currentScene, setCurrentScene] = useState("standard")
+  const Scene = scenes[currentScene]
+
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <Canvas>
+        <Scene />
+        <OrbitControls />
+      </Canvas>
+      <Controls setScene={setCurrentScene} />
+    </div>
+  )
+}
+
+export default App
