@@ -17,7 +17,7 @@ const scenes = {
 }
 
 function App() {
-  const [currentScene, setCurrentScene] = useState("standard")
+  const [currentScene, setCurrentScene] = useState("localScreenSpace")
   const Scene = scenes[currentScene]
 
   return (

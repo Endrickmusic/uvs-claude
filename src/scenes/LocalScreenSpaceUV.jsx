@@ -1,6 +1,6 @@
 // src/scenes/LocalScreenSpaceUV.jsx
 import React, { useRef, useMemo } from "react"
-import { useFrame, useThree } from "@react-three/fiber"
+import { useFrame, useThree, useLoader } from "@react-three/fiber"
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
 import { extend } from "@react-three/fiber"
@@ -11,6 +11,7 @@ const LocalScreenSpaceUVMaterial = shaderMaterial(
     resolution: new THREE.Vector2(),
     cubeCenter: new THREE.Vector4(),
     cubeBounds: new THREE.Vector3(),
+    uvTexture: null,
   },
   vertexShader,
   fragmentShader
@@ -22,6 +23,9 @@ const LocalScreenSpaceUV = () => {
   const meshRef = useRef()
   const materialRef = useRef()
   const { size } = useThree()
+
+  // Load a UV grid texture
+  const texture = useLoader(THREE.TextureLoader, "./textures/uvs_01.jpg")
 
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
   const boundingBox = useMemo(
@@ -56,7 +60,7 @@ const LocalScreenSpaceUV = () => {
 
   return (
     <mesh ref={meshRef} geometry={geometry}>
-      <localScreenSpaceUVMaterial ref={materialRef} />
+      <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
     </mesh>
   )
 }
