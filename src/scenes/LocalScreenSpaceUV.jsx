@@ -37,23 +37,37 @@ const LocalScreenSpaceUV = () => {
     [boundingBox]
   )
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, clock }) => {
     if (meshRef.current && materialRef.current) {
-      meshRef.current.rotation.x += 0.01
-      meshRef.current.rotation.y += 0.01
+      const radius = 3
+      const speed = 0.5
+
+      const angle = clock.getElapsedTime() * speed
+      const x = Math.cos(angle) * radius
+      const y = Math.sin(angle) * radius
+
+      meshRef.current.position.x = x
+      meshRef.current.position.y = y
 
       const cubeWorldPosition = meshRef.current.getWorldPosition(
         new THREE.Vector3()
       )
       const cubeScreenPosition = cubeWorldPosition.project(camera)
+      // console.log(cubeScreenPosition)
 
       materialRef.current.resolution.set(size.width, size.height)
       materialRef.current.cubeCenter.set(
-        (cubeScreenPosition.x + 1) / 2,
-        (cubeScreenPosition.y + 1) / 2,
+        cubeScreenPosition.x,
+        cubeScreenPosition.y,
         cubeScreenPosition.z,
         1
       )
+      // materialRef.current.cubeCenter.set(
+      //   (cubeScreenPosition.x + 1) / 2,
+      //   (cubeScreenPosition.y + 1) / 2,
+      //   cubeScreenPosition.z,
+      //   1
+      // )
       materialRef.current.cubeBounds.copy(cubeBounds)
     }
   })
