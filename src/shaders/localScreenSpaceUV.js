@@ -12,7 +12,7 @@ export const vertexShader = `
 export const fragmentShader = `
   
   uniform vec2 resolution;
-  uniform vec4 cubeCenter;
+  uniform vec4 cubePosition;
   uniform vec3 cubeBounds;
   uniform sampler2D uvTexture;
 
@@ -29,7 +29,7 @@ export const fragmentShader = `
     // Map the clip space coordinates to colors for visualization
     vec2 mappedNdc = screenUVs - .5;
 
-    vec2 localScreenSpace = mappedNdc - cubeCenter.xy;
+    vec2 localScreenSpace = mappedNdc - cubePosition.xy;
     // gl_FragColor = vec4(mappedNdc, 0.0, 1.0);
     // gl_FragColor = vec4(cubeCenter.xy, 0.0, 1.0);
     gl_FragColor = vec4(localScreenSpace, 0.0, 1.0);

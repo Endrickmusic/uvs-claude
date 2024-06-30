@@ -9,7 +9,7 @@ import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 const LocalScreenSpaceUVMaterial = shaderMaterial(
   {
     resolution: new THREE.Vector2(),
-    cubeCenter: new THREE.Vector4(),
+    cubePosition: new THREE.Vector4(),
     cubeBounds: new THREE.Vector3(),
     uvTexture: null,
   },
@@ -56,7 +56,7 @@ const LocalScreenSpaceUV = () => {
       // console.log(cubeScreenPosition)
 
       materialRef.current.resolution.set(size.width, size.height)
-      materialRef.current.cubeCenter.set(
+      materialRef.current.cubePosition.set(
         cubeScreenPosition.x,
         cubeScreenPosition.y,
         cubeScreenPosition.z,
