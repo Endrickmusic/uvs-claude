@@ -102,7 +102,7 @@ const LocalScreenSpaceUV = () => {
   })
 
   return (
-    <mesh scale={1} ref={meshRef} geometry={geometry}>
+    <mesh scale={2} ref={meshRef} geometry={geometry}>
       <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
     </mesh>
   )
