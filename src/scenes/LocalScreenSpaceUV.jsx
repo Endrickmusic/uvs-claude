@@ -9,7 +9,8 @@ import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 const LocalScreenSpaceUVMaterial = shaderMaterial(
   {
     resolution: new THREE.Vector2(),
-    cubePosition: new THREE.Vector4(),
+    cubePosition: new THREE.Vector3(),
+    cubeViewPosition: new THREE.Vector3(),
     cubeBounds: new THREE.Vector3(),
     uvTexture: null,
   },
@@ -52,6 +53,14 @@ const LocalScreenSpaceUV = () => {
       const cubeWorldPosition = meshRef.current.getWorldPosition(
         new THREE.Vector3()
       )
+
+      const viewPosition = cubeWorldPosition
+        .clone()
+        .applyMatrix4(camera.matrixWorldInverse)
+
+      console.log("World Position:", cubeWorldPosition.z)
+      console.log("View Position:", viewPosition.z)
+
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
@@ -62,13 +71,30 @@ const LocalScreenSpaceUV = () => {
         cubeScreenPosition.z,
         1
       )
-      // materialRef.current.cubeCenter.set(
-      //   (cubeScreenPosition.x + 1) / 2,
-      //   (cubeScreenPosition.y + 1) / 2,
-      //   cubeScreenPosition.z,
-      //   1
+
+      materialRef.current.cubeViewPosition.set(
+        viewPosition.x,
+        viewPosition.y,
+        viewPosition.z,
+        1
+      )
+
+      console.log(cubeScreenPosition.z)
+
+      // Calculate cube bounds in screen space
+      // This is a simplified example and might need adjustment based on your specific setup
+      const cubeSize = new THREE.Vector3()
+      meshRef.current.geometry.computeBoundingBox()
+      meshRef.current.geometry.boundingBox.getSize(cubeSize)
+      cubeSize.multiply(meshRef.current.scale)
+      // materialRef.current.cubeBounds.set(
+      //   (cubeSize.x / size.width) * 2.0,
+      //   (cubeSize.y / size.height) * 2.0,
+      //   cubeSize.z
       // )
-      materialRef.current.cubeBounds.copy(cubeBounds)
+      const cubeScreenBounds = cubeBounds.project(camera)
+      materialRef.current.cubeBounds.copy(cubeScreenBounds)
+      console.log(cubeScreenBounds)
     }
   })
 
