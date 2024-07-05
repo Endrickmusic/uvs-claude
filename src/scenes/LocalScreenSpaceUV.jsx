@@ -12,6 +12,7 @@ const LocalScreenSpaceUVMaterial = shaderMaterial(
     cubePosition: new THREE.Vector3(),
     cubeViewPosition: new THREE.Vector3(),
     cubeBounds: new THREE.Vector3(),
+    cubeScale: new THREE.Vector3(),
     uvTexture: null,
   },
   vertexShader,
@@ -26,7 +27,7 @@ const LocalScreenSpaceUV = () => {
   const { size } = useThree()
 
   // Load a UV grid texture
-  const texture = useLoader(THREE.TextureLoader, "./textures/uvs_01.jpg")
+  const texture = useLoader(THREE.TextureLoader, "./textures/UVs_03.jpg")
 
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
   const boundingBox = useMemo(
@@ -95,11 +96,13 @@ const LocalScreenSpaceUV = () => {
       const cubeScreenBounds = cubeBounds.project(camera)
       materialRef.current.cubeBounds.copy(cubeScreenBounds)
       console.log(cubeScreenBounds)
+
+      materialRef.current.cubeScale.copy(meshRef.current.scale)
     }
   })
 
   return (
-    <mesh ref={meshRef} geometry={geometry}>
+    <mesh scale={1} ref={meshRef} geometry={geometry}>
       <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
     </mesh>
   )

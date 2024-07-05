@@ -15,6 +15,7 @@ export const fragmentShader = `
   uniform vec3 cubePosition;
   uniform vec3 cubeViewPosition;
   uniform vec3 cubeBounds;
+  uniform vec3 cubeScale;
   uniform sampler2D uvTexture;
 
   varying vec4 vClipPosition;
@@ -43,7 +44,7 @@ export const fragmentShader = `
     localScreenSpace += vec2(0.5);
    
     // scale UVs from center
-    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -cubeViewPosition.z / 5.) + vec2(0.5);
+    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -cubeViewPosition.z / 5. / cubeScale.x) + vec2(0.5);
     
     // Sample the texture with centered UVs
     gl_FragColor = texture2D(uvTexture, localScreenSpace);
