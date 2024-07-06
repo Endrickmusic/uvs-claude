@@ -1,6 +1,6 @@
 // src/scenes/LocalScreenSpaceUV.jsx
-import React, { useRef, useMemo } from "react"
-import { useFrame, useThree, useLoader } from "@react-three/fiber"
+import React, { useRef, useMemo, useCallback } from "react"
+import { useFrame, useThree } from "@react-three/fiber"
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
 import { extend } from "@react-three/fiber"
@@ -14,7 +14,14 @@ const LocalScreenSpaceUVMaterial = shaderMaterial(
     uCubeBounds: new THREE.Vector3(),
     uCubeScale: new THREE.Vector3(),
     uvTexture: null,
-    uDpr: { value: window.devicePixelRatio },
+    uDpr: 1,
+    uCamPos: new THREE.Vector3(),
+    uCamToWorldMat: new THREE.Matrix4(),
+    uCamInverseProjMat: new THREE.Matrix4(),
+    uInverseModelMat: new THREE.Matrix4(),
+    uTime: 0,
+    uMouse: new THREE.Vector2(),
+    uForward: new THREE.Vector3(),
   },
   vertexShader,
   fragmentShader
@@ -25,11 +32,13 @@ extend({ LocalScreenSpaceUVMaterial })
 const LocalScreenSpaceUV = () => {
   const meshRef = useRef()
   const materialRef = useRef()
-  const { size } = useThree()
+  const { size, camera } = useThree()
 
-  // Load a UV grid texture
-  const texture = useLoader(THREE.TextureLoader, "./textures/UVs_03.jpg")
-
+  // Use useMemo for static or rarely changing values
+  const texture = useMemo(
+    () => new THREE.TextureLoader().load("./textures/UVs_03.jpg"),
+    []
+  )
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
   const boundingBox = useMemo(
     () => new THREE.Box3().setFromObject(new THREE.Mesh(geometry)),
@@ -40,74 +49,58 @@ const LocalScreenSpaceUV = () => {
     [boundingBox]
   )
 
-  useFrame(({ camera, clock }) => {
-    if (meshRef.current && materialRef.current) {
+  // Use useCallback for the frame update function
+  const updateUniforms = useCallback(
+    ({ clock, mouse }) => {
+      if (!meshRef.current || !materialRef.current) return
+
+      const material = materialRef.current
+      const mesh = meshRef.current
+
+      // Update cube position
       const radius = 3
       const speed = 0.5
-
       const angle = clock.getElapsedTime() * speed
-      const x = Math.cos(angle) * radius
-      const y = Math.sin(angle) * radius
+      // mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
 
-      meshRef.current.position.x = x
-      meshRef.current.position.y = y
-
-      const cubeWorldPosition = meshRef.current.getWorldPosition(
-        new THREE.Vector3()
-      )
-
+      // Calculate positions
+      const cubeWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
       const viewPosition = cubeWorldPosition
         .clone()
         .applyMatrix4(camera.matrixWorldInverse)
+      const cubeScreenPosition = cubeWorldPosition.clone().project(camera)
 
-      console.log("World Position:", cubeWorldPosition.z)
-      console.log("View Position:", viewPosition.z)
+      // Update uniforms
+      material.uResolution.set(window.innerWidth, window.innerHeight)
+      material.uDpr = window.devicePixelRatio
+      material.uCubePosition.copy(cubeScreenPosition)
+      material.uCubeViewPosition.copy(viewPosition)
+      material.uCubeBounds.copy(uCubeBounds.clone().project(camera))
+      material.uCubeScale.copy(mesh.scale)
+      material.uTime = clock.getElapsedTime()
+      material.uMouse.set(mouse.x, mouse.y)
+      material.uCamPos.copy(camera.position)
+      material.uCamToWorldMat.copy(camera.matrixWorld)
+      material.uCamInverseProjMat.copy(camera.projectionMatrixInverse)
+      material.uInverseModelMat.copy(mesh.matrixWorld).invert()
 
-      const cubeScreenPosition = cubeWorldPosition.project(camera)
-      // console.log(cubeScreenPosition)
+      // console.log("camera postion", camera.position)
 
-      materialRef.current.uResolution.set(window.innerWidth, window.innerHeight)
-      materialRef.current.uDpr = window.devicePixelRatio
-      console.log(window.devicePixelRatio)
-
-      // materialRef.current.resolution.set(size.width, size.height)
-      materialRef.current.uCubePosition.set(
-        cubeScreenPosition.x,
-        cubeScreenPosition.y,
-        cubeScreenPosition.z,
-        1
-      )
-
-      materialRef.current.uCubeViewPosition.set(
-        viewPosition.x,
-        viewPosition.y,
-        viewPosition.z,
-        1
-      )
-
-      console.log(cubeScreenPosition.z)
-
-      // Calculate cube bounds in screen space
-      // This is a simplified example and might need adjustment based on your specific setup
-      const cubeSize = new THREE.Vector3()
-      meshRef.current.geometry.computeBoundingBox()
-      meshRef.current.geometry.boundingBox.getSize(cubeSize)
-      cubeSize.multiply(meshRef.current.scale)
-      // materialRef.current.uCubeBounds.set(
-      //   (cubeSize.x / size.width) * 2.0,
-      //   (cubeSize.y / size.height) * 2.0,
-      //   cubeSize.z
+      const forward = new THREE.Vector3(0, 0, -1)
+      camera.getWorldDirection(forward)
+      // const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      //   camera.quaternion
       // )
-      const cubeScreenBounds = uCubeBounds.project(camera)
-      materialRef.current.uCubeBounds.copy(cubeScreenBounds)
-      console.log(cubeScreenBounds)
+      material.uForward.copy(forward)
+      console.log("forward", forward)
+    },
+    [camera, uCubeBounds]
+  )
 
-      materialRef.current.uCubeScale.copy(meshRef.current.scale)
-    }
-  })
+  useFrame(updateUniforms)
 
   return (
-    <mesh scale={2} ref={meshRef} geometry={geometry}>
+    <mesh scale={3} ref={meshRef} geometry={geometry}>
       <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
     </mesh>
   )

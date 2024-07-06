@@ -3,10 +3,10 @@ import React, { useState } from "react"
 import { Canvas } from "@react-three/fiber"
 import { OrbitControls } from "@react-three/drei"
 import Controls from "./components/Controls"
-import StandardUV from "./scenes/StandardUV"
-import ScreenSpaceUV from "./scenes/ScreenSpaceUV"
-import WorldSpaceUV from "./scenes/WorldSpaceUV"
-import LocalScreenSpaceUV from "./scenes/LocalScreenSpaceUV"
+import StandardUV from "./scenes/StandardUV.jsx"
+import ScreenSpaceUV from "./scenes/ScreenSpaceUV.jsx"
+import WorldSpaceUV from "./scenes/WorldSpaceUV.jsx"
+import LocalScreenSpaceUV from "./scenes/LocalScreenSpaceUV.jsx"
 
 const scenes = {
   standard: StandardUV,
@@ -22,7 +22,10 @@ function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <Canvas camera={{ position: [0, 0, -5] }}>
+      <Canvas
+        orthographic
+        camera={{ position: [0, 0, -5], zoom: 100, near: 0.01, far: 1000 }}
+      >
         <Scene />
         <OrbitControls />
       </Canvas>
