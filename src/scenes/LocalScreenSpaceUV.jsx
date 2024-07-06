@@ -61,7 +61,7 @@ const LocalScreenSpaceUV = () => {
       const radius = 3
       const speed = 0.5
       const angle = clock.getElapsedTime() * speed
-      // mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
+      mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
 
       // Calculate positions
       const cubeWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
@@ -94,13 +94,19 @@ const LocalScreenSpaceUV = () => {
       material.uForward.copy(forward)
       console.log("forward", forward)
     },
-    [camera, uCubeBounds]
+    [
+      camera,
+      uCubeBounds,
+      camera.position,
+      window.innerWidth,
+      window.innerHeight,
+    ]
   )
 
   useFrame(updateUniforms)
 
   return (
-    <mesh scale={3} ref={meshRef} geometry={geometry}>
+    <mesh scale={4} ref={meshRef} geometry={geometry} position={[0, 0, 0]}>
       <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
     </mesh>
   )

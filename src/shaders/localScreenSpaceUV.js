@@ -49,8 +49,8 @@ export const fragmentShader = `
   const float TWO_PI = 2.0 * PI;
   const int LOOP = 16;
 
-  #define MAX_STEPS 4000
-  #define MAX_DIST 4000.
+  #define MAX_STEPS 100
+  #define MAX_DIST 100.
   #define SURF_DIST 1e-3
   #define samples 32
   #define LOD 
@@ -124,41 +124,38 @@ vec3 GetNormal(in vec3 p) {
     localScreenSpace += vec2(0.5);
    
     // scale UVs from center
-    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -uCubeViewPosition.z / 1. / uCubeScale.x) + vec2(0.0);
+    localScreenSpace = ((localScreenSpace - vec2(0.5)) * -uCubeViewPosition.z / uCubeScale.x) + vec2(0.5);
+    // localScreenSpace = localScreenSpace * -uCubeViewPosition.z;
     
     vec2 uv = localScreenSpace;
 
-  	vec3 cameraTarget = uForward;
-		// vec3 cameraTarget = vHitPos;
-
 		// Compute the right, up, and forward vectors for the camera
-		vec3 forward = normalize(cameraTarget);
+		vec3 forward = normalize(uForward);
 		vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), forward));
 		vec3 up = cross(forward, right);
 
 		// Compute the ray origin based on the orthographic projection
 		vec3 ro = vRayOrigin.xyz + uv.x * right + uv.y * up;
+
 		// The ray direction is constant and points towards the target
 		vec3 rd = forward;
-    // vec3 rd = normalize(vec3(uv.x, uv.y, 1.));
 		float d = Raymarch(ro, rd);
 
 		vec3 col = vec3(0.0);
 
-		if ( d >= MAX_DIST )
-			// discard;
-      col = vec3(0.3);
-		else {
-			vec3 p = ro + rd * d;
-			vec3 n = GetNormal(p);
-			col.rgb = n;
-		}
-        gl_FragColor = vec4(col, 1.0);
-        // gl_FragColor = vec4(rd, 1.0);
-		// gl_FragColor = vec4(0., 0., 1., 1.0);
+		// if ( d >= MAX_DIST )
+		// 	discard;
+    //   // col = vec3(0.3);
+		// else {
+		// 	vec3 p = ro + rd * d;
+		// 	vec3 n = GetNormal(p);
+		// 	col.rgb = n;
+		// }
+    //     gl_FragColor = vec4(col, 1.0);
+
 		// gl_FragColor = vec4(uv, 0.0, 1.0);
 
     // Sample the texture with centered UVs
-    // gl_FragColor = texture2D(uvTexture, localScreenSpace);
+    gl_FragColor = texture2D(uvTexture, localScreenSpace);
   }
 `
