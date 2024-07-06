@@ -51,7 +51,7 @@ const LocalScreenSpaceUV = () => {
 
   // Use useCallback for the frame update function
   const updateUniforms = useCallback(
-    ({ clock, mouse }) => {
+    ({ camera, clock, mouse }) => {
       if (!meshRef.current || !materialRef.current) return
 
       const material = materialRef.current
@@ -68,13 +68,15 @@ const LocalScreenSpaceUV = () => {
       const viewPosition = cubeWorldPosition
         .clone()
         .applyMatrix4(camera.matrixWorldInverse)
-      const cubeScreenPosition = cubeWorldPosition.clone().project(camera)
+      const cubeScreenPosition = cubeWorldPosition.project(camera)
 
       // Update uniforms
       material.uResolution.set(window.innerWidth, window.innerHeight)
       material.uDpr = window.devicePixelRatio
       material.uCubePosition.copy(cubeScreenPosition)
+      console.log("cubeScreenPosition", cubeScreenPosition)
       material.uCubeViewPosition.copy(viewPosition)
+      console.log("viewPosition", viewPosition)
       material.uCubeBounds.copy(uCubeBounds.clone().project(camera))
       material.uCubeScale.copy(mesh.scale)
       material.uTime = clock.getElapsedTime()
