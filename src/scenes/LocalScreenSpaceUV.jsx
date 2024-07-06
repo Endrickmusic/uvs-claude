@@ -14,6 +14,7 @@ const LocalScreenSpaceUVMaterial = shaderMaterial(
     cubeBounds: new THREE.Vector3(),
     cubeScale: new THREE.Vector3(),
     uvTexture: null,
+    dpr: { value: window.devicePixelRatio },
   },
   vertexShader,
   fragmentShader
@@ -65,7 +66,11 @@ const LocalScreenSpaceUV = () => {
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
-      materialRef.current.resolution.set(size.width, size.height)
+      materialRef.current.resolution.set(window.innerWidth, window.innerHeight)
+      materialRef.current.dpr = window.devicePixelRatio
+      console.log(window.devicePixelRatio)
+
+      // materialRef.current.resolution.set(size.width, size.height)
       materialRef.current.cubePosition.set(
         cubeScreenPosition.x,
         cubeScreenPosition.y,

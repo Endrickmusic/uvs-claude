@@ -17,6 +17,7 @@ export const fragmentShader = `
   uniform vec3 cubeBounds;
   uniform vec3 cubeScale;
   uniform sampler2D uvTexture;
+  uniform float dpr;
 
   varying vec4 vClipPosition;
 
@@ -29,7 +30,7 @@ export const fragmentShader = `
     float aspectRatio = resolution.x / resolution.y;
 
     // Convert screen space coordinates to UVs in the range [0, 1]
-    vec2 screenUVs = screenCoords / resolution;
+    vec2 screenUVs = screenCoords / (resolution * dpr);
     
     // Convert to [-1, 1] range
     vec2 mappedNdc = screenUVs * 2.0 - 1.0;
