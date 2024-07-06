@@ -8,13 +8,13 @@ import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 
 const LocalScreenSpaceUVMaterial = shaderMaterial(
   {
-    resolution: new THREE.Vector2(),
-    cubePosition: new THREE.Vector3(),
-    cubeViewPosition: new THREE.Vector3(),
-    cubeBounds: new THREE.Vector3(),
-    cubeScale: new THREE.Vector3(),
+    uResolution: new THREE.Vector2(),
+    uCubePosition: new THREE.Vector3(),
+    uCubeViewPosition: new THREE.Vector3(),
+    uCubeBounds: new THREE.Vector3(),
+    uCubeScale: new THREE.Vector3(),
     uvTexture: null,
-    dpr: { value: window.devicePixelRatio },
+    uDpr: { value: window.devicePixelRatio },
   },
   vertexShader,
   fragmentShader
@@ -35,7 +35,7 @@ const LocalScreenSpaceUV = () => {
     () => new THREE.Box3().setFromObject(new THREE.Mesh(geometry)),
     [geometry]
   )
-  const cubeBounds = useMemo(
+  const uCubeBounds = useMemo(
     () => boundingBox.getSize(new THREE.Vector3()),
     [boundingBox]
   )
@@ -66,19 +66,19 @@ const LocalScreenSpaceUV = () => {
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
-      materialRef.current.resolution.set(window.innerWidth, window.innerHeight)
-      materialRef.current.dpr = window.devicePixelRatio
+      materialRef.current.uResolution.set(window.innerWidth, window.innerHeight)
+      materialRef.current.uDpr = window.devicePixelRatio
       console.log(window.devicePixelRatio)
 
       // materialRef.current.resolution.set(size.width, size.height)
-      materialRef.current.cubePosition.set(
+      materialRef.current.uCubePosition.set(
         cubeScreenPosition.x,
         cubeScreenPosition.y,
         cubeScreenPosition.z,
         1
       )
 
-      materialRef.current.cubeViewPosition.set(
+      materialRef.current.uCubeViewPosition.set(
         viewPosition.x,
         viewPosition.y,
         viewPosition.z,
@@ -93,16 +93,16 @@ const LocalScreenSpaceUV = () => {
       meshRef.current.geometry.computeBoundingBox()
       meshRef.current.geometry.boundingBox.getSize(cubeSize)
       cubeSize.multiply(meshRef.current.scale)
-      // materialRef.current.cubeBounds.set(
+      // materialRef.current.uCubeBounds.set(
       //   (cubeSize.x / size.width) * 2.0,
       //   (cubeSize.y / size.height) * 2.0,
       //   cubeSize.z
       // )
-      const cubeScreenBounds = cubeBounds.project(camera)
-      materialRef.current.cubeBounds.copy(cubeScreenBounds)
+      const cubeScreenBounds = uCubeBounds.project(camera)
+      materialRef.current.uCubeBounds.copy(cubeScreenBounds)
       console.log(cubeScreenBounds)
 
-      materialRef.current.cubeScale.copy(meshRef.current.scale)
+      materialRef.current.uCubeScale.copy(meshRef.current.scale)
     }
   })
 
