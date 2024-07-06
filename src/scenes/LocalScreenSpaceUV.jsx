@@ -63,20 +63,9 @@ const LocalScreenSpaceUV = () => {
       const angle = clock.getElapsedTime() * speed
       mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0)
 
-      // Calculate positions
-      const cubeWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
-      const viewPosition = cubeWorldPosition
-        .clone()
-        .applyMatrix4(camera.matrixWorldInverse)
-      const cubeScreenPosition = cubeWorldPosition.project(camera)
-
       // Update uniforms
       material.uResolution.set(window.innerWidth, window.innerHeight)
       material.uDpr = window.devicePixelRatio
-      material.uCubePosition.copy(cubeScreenPosition)
-      console.log("cubeScreenPosition", cubeScreenPosition)
-      material.uCubeViewPosition.copy(viewPosition)
-      console.log("viewPosition", viewPosition)
       material.uCubeBounds.copy(uCubeBounds.clone().project(camera))
       material.uCubeScale.copy(mesh.scale)
       material.uTime = clock.getElapsedTime()
@@ -86,13 +75,22 @@ const LocalScreenSpaceUV = () => {
       material.uCamInverseProjMat.copy(camera.projectionMatrixInverse)
       material.uInverseModelMat.copy(mesh.matrixWorld).invert()
 
+      // Calculate positions
+      const cubeWorldPosition = mesh.getWorldPosition(new THREE.Vector3())
+      const viewPosition = cubeWorldPosition
+        .clone()
+        .applyMatrix4(camera.matrixWorldInverse)
+      const cubeScreenPosition = cubeWorldPosition.clone().project(camera)
+
+      material.uCubePosition.copy(cubeScreenPosition)
+      console.log("cubeScreenPosition", cubeScreenPosition)
+      material.uCubeViewPosition.copy(viewPosition)
+      console.log("viewPosition", viewPosition)
+
       // console.log("camera postion", camera.position)
 
       const forward = new THREE.Vector3(0, 0, -1)
       camera.getWorldDirection(forward)
-      // const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
-      //   camera.quaternion
-      // )
       material.uForward.copy(forward)
       console.log("forward", forward)
     },

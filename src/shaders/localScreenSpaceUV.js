@@ -124,7 +124,7 @@ vec3 GetNormal(in vec3 p) {
     localScreenSpace += vec2(0.5);
    
     // scale UVs from center
-    localScreenSpace = ((localScreenSpace - vec2(0.5)) * -uCubeViewPosition.z / uCubeScale.x) + vec2(0.5);
+    localScreenSpace = ((localScreenSpace - vec2(0.5)) * -uCubeViewPosition.z / 5. / uCubeScale.x) + vec2(0.5);
     // localScreenSpace = localScreenSpace * -uCubeViewPosition.z;
     
     vec2 uv = localScreenSpace;
