@@ -1,31 +1,22 @@
 // src/scenes/LocalScreenSpaceUV.jsx
-import React, { useRef, useMemo } from "react"
-import { useFrame, useThree, useLoader } from "@react-three/fiber"
+import React, { useRef, useMemo, useState } from "react"
+import { useFrame, useThree, useLoader, extend } from "@react-three/fiber"
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
-import { extend } from "@react-three/fiber"
 import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 
-const LocalScreenSpaceUVMaterial = shaderMaterial(
-  {
-    resolution: new THREE.Vector2(),
-    cubePosition: new THREE.Vector3(),
-    cubeViewPosition: new THREE.Vector3(),
-    cubeBounds: new THREE.Vector3(),
-    cubeScale: new THREE.Vector3(),
-    uvTexture: null,
-    dpr: { value: window.devicePixelRatio },
-  },
-  vertexShader,
-  fragmentShader
-)
+const LocalScreenSpaceUVMaterial = shaderMaterial(vertexShader, fragmentShader)
 
 extend({ LocalScreenSpaceUVMaterial })
 
 const LocalScreenSpaceUV = () => {
   const meshRef = useRef()
   const materialRef = useRef()
-  const { size } = useThree()
+  const { size, camera } = useThree()
+
+  const [worldToObjectMatrix, setWorldToObjectMatrix] = useState(
+    new THREE.Matrix4()
+  )
 
   // Load a UV grid texture
   const texture = useLoader(THREE.TextureLoader, "./textures/UVs_03.jpg")
@@ -38,6 +29,23 @@ const LocalScreenSpaceUV = () => {
   const cubeBounds = useMemo(
     () => boundingBox.getSize(new THREE.Vector3()),
     [boundingBox]
+  )
+
+  const uniforms = useMemo(
+    () => ({
+      resolution: new THREE.Vector2(),
+      cubePosition: new THREE.Vector3(),
+      cubeViewPosition: new THREE.Vector3(),
+      cubeBounds: new THREE.Vector3(),
+      cubeScale: new THREE.Vector3(),
+      uvTexture: null,
+      dpr: window.devicePixelRatio,
+      uCamPos: camera.position,
+      uCamToWorldMat: camera.matrixWorld,
+      uCamInverseProjMat: camera.projectionMatrixInverse,
+      uInverseModelMat: new THREE.Matrix4(),
+    }),
+    [camera.position, camera.matrixWorld, camera.projectionMatrixInverse]
   )
 
   useFrame(({ camera, clock }) => {
@@ -66,19 +74,22 @@ const LocalScreenSpaceUV = () => {
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
-      materialRef.current.resolution.set(window.innerWidth, window.innerHeight)
-      materialRef.current.dpr = window.devicePixelRatio
+      materialRef.current.uniforms.resolution.set(
+        window.innerWidth,
+        window.innerHeight
+      )
+      materialRef.current.uniforms.dpr = window.devicePixelRatio
       console.log(window.devicePixelRatio)
 
       // materialRef.current.resolution.set(size.width, size.height)
-      materialRef.current.cubePosition.set(
+      materialRef.current.uniforms.cubePosition.set(
         cubeScreenPosition.x,
         cubeScreenPosition.y,
         cubeScreenPosition.z,
         1
       )
 
-      materialRef.current.cubeViewPosition.set(
+      materialRef.current.uniforms.cubeViewPosition.set(
         viewPosition.x,
         viewPosition.y,
         viewPosition.z,
@@ -99,16 +110,20 @@ const LocalScreenSpaceUV = () => {
       //   cubeSize.z
       // )
       const cubeScreenBounds = cubeBounds.project(camera)
-      materialRef.current.cubeBounds.copy(cubeScreenBounds)
+      materialRef.current.uniforms.cubeBounds.copy(cubeScreenBounds)
       console.log(cubeScreenBounds)
 
-      materialRef.current.cubeScale.copy(meshRef.current.scale)
+      materialRef.current.uniforms.cubeScale.copy(meshRef.current.scale)
     }
   })
 
   return (
     <mesh scale={2} ref={meshRef} geometry={geometry}>
-      <localScreenSpaceUVMaterial ref={materialRef} uvTexture={texture} />
+      <localScreenSpaceUVMaterial
+        ref={materialRef}
+        // uvTexture={texture}
+        uniforms={uniforms}
+      />
     </mesh>
   )
 }
