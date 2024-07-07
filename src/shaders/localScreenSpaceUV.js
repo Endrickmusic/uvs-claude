@@ -11,10 +11,9 @@ export const vertexShader = `
 
 export const fragmentShader = `
   
-  uniform vec2 resolution;
+  uniform vec2 uResolution;
   uniform vec3 cubePosition;
   uniform vec3 cubeViewPosition;
-  uniform vec3 cubeBounds;
   uniform vec3 cubeScale;
   uniform sampler2D uvTexture;
   uniform float dpr;
@@ -27,10 +26,10 @@ export const fragmentShader = `
     vec2 screenCoords = gl_FragCoord.xy;
 
     // Calculate aspect ratio
-    float aspectRatio = resolution.x / resolution.y;
+    float aspectRatio = uResolution.x / uResolution.y;
 
     // Convert screen space coordinates to UVs in the range [0, 1]
-    vec2 screenUVs = screenCoords / (resolution * dpr);
+    vec2 screenUVs = screenCoords / (uResolution);
     
     // Convert to [-1, 1] range
     vec2 mappedNdc = screenUVs * 2.0 - 1.0;

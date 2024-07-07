@@ -1,5 +1,5 @@
 // src/scenes/LocalScreenSpaceUV.jsx
-import React, { useRef, useMemo } from "react"
+import React, { useRef, useMemo, useEffect } from "react"
 import { useFrame, useThree, useLoader } from "@react-three/fiber"
 import { shaderMaterial } from "@react-three/drei"
 import * as THREE from "three"
@@ -8,7 +8,7 @@ import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 
 const LocalScreenSpaceUVMaterial = shaderMaterial(
   {
-    resolution: new THREE.Vector2(),
+    uResolution: new THREE.Vector2(),
     cubePosition: new THREE.Vector3(),
     cubeViewPosition: new THREE.Vector3(),
     cubeBounds: new THREE.Vector3(),
@@ -40,7 +40,16 @@ const LocalScreenSpaceUV = () => {
     [boundingBox]
   )
 
+  useEffect(() => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uResolution.value
+        .set(size.width, size.height)
+        .multiplyScalar(Math.min(window.devicePixelRatio, 2))
+    }
+  }, [size, window.devicePixelRatio])
+
   useFrame(({ camera, clock }) => {
+    // animate the cube
     if (meshRef.current && materialRef.current) {
       const radius = 3
       const speed = 0.5
@@ -56,51 +65,23 @@ const LocalScreenSpaceUV = () => {
         new THREE.Vector3()
       )
 
+      // get the view position
       const viewPosition = cubeWorldPosition
         .clone()
         .applyMatrix4(camera.matrixWorldInverse)
 
-      console.log("World Position:", cubeWorldPosition.z)
-      console.log("View Position:", viewPosition.z)
+      // console.log("World Position:", cubeWorldPosition.z)
+      // console.log("View Position:", viewPosition.z)
 
+      // get the screen position
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
-      materialRef.current.resolution.set(window.innerWidth, window.innerHeight)
-      materialRef.current.dpr = window.devicePixelRatio
-      console.log(window.devicePixelRatio)
+      materialRef.current.cubePosition.copy(cubeScreenPosition)
 
-      // materialRef.current.resolution.set(size.width, size.height)
-      materialRef.current.cubePosition.set(
-        cubeScreenPosition.x,
-        cubeScreenPosition.y,
-        cubeScreenPosition.z,
-        1
-      )
-
-      materialRef.current.cubeViewPosition.set(
-        viewPosition.x,
-        viewPosition.y,
-        viewPosition.z,
-        1
-      )
+      materialRef.current.cubeViewPosition.copy(viewPosition)
 
       console.log(cubeScreenPosition.z)
-
-      // Calculate cube bounds in screen space
-      // This is a simplified example and might need adjustment based on your specific setup
-      const cubeSize = new THREE.Vector3()
-      meshRef.current.geometry.computeBoundingBox()
-      meshRef.current.geometry.boundingBox.getSize(cubeSize)
-      cubeSize.multiply(meshRef.current.scale)
-      // materialRef.current.cubeBounds.set(
-      //   (cubeSize.x / size.width) * 2.0,
-      //   (cubeSize.y / size.height) * 2.0,
-      //   cubeSize.z
-      // )
-      const cubeScreenBounds = cubeBounds.project(camera)
-      materialRef.current.cubeBounds.copy(cubeScreenBounds)
-      console.log(cubeScreenBounds)
 
       materialRef.current.cubeScale.copy(meshRef.current.scale)
     }
