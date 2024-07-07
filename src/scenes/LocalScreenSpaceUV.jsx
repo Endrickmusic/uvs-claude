@@ -13,7 +13,11 @@ const LocalScreenSpaceUVMaterial = shaderMaterial(
     uCubeViewPosition: new THREE.Vector3(),
     uCubeScale: new THREE.Vector3(),
     uvTexture: null,
-    dpr: { value: window.devicePixelRatio },
+    uCamPos: new THREE.Vector3(),
+    uCamToWorldMat: new THREE.Matrix4(),
+    uCamInverseProjMat: new THREE.Matrix4(),
+    uInverseModelMat: new THREE.Matrix4(),
+    uForward: new THREE.Vector3(),
   },
   vertexShader,
   fragmentShader
@@ -30,14 +34,6 @@ const LocalScreenSpaceUV = () => {
   const texture = useLoader(THREE.TextureLoader, "./textures/UVs_03.jpg")
 
   const geometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
-  const boundingBox = useMemo(
-    () => new THREE.Box3().setFromObject(new THREE.Mesh(geometry)),
-    [geometry]
-  )
-  const cubeBounds = useMemo(
-    () => boundingBox.getSize(new THREE.Vector3()),
-    [boundingBox]
-  )
 
   useEffect(() => {
     if (materialRef.current) {
@@ -80,9 +76,18 @@ const LocalScreenSpaceUV = () => {
 
       materialRef.current.uCubeViewPosition.copy(viewPosition)
 
-      console.log(cubeScreenPosition.z)
+      // console.log(cubeScreenPosition.z)
 
       materialRef.current.uCubeScale.copy(meshRef.current.scale)
+
+      materialRef.current.uCamPos.copy(camera.position)
+      materialRef.current.uCamToWorldMat.copy(camera.matrixWorld)
+      materialRef.current.uCamInverseProjMat.copy(
+        camera.projectionMatrixInverse
+      )
+      materialRef.current.uInverseModelMat
+        .copy(meshRef.current.matrixWorld)
+        .invert()
     }
   })
 
