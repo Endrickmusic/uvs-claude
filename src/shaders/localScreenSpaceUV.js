@@ -12,9 +12,9 @@ export const vertexShader = `
 export const fragmentShader = `
   
   uniform vec2 uResolution;
-  uniform vec3 cubePosition;
-  uniform vec3 cubeViewPosition;
-  uniform vec3 cubeScale;
+  uniform vec3 uCubePosition;
+  uniform vec3 uCubeViewPosition;
+  uniform vec3 uCubeScale;
   uniform sampler2D uvTexture;
   uniform float dpr;
 
@@ -35,7 +35,7 @@ export const fragmentShader = `
     vec2 mappedNdc = screenUVs * 2.0 - 1.0;
     
     // Calculate local screen space coordinates by substracting the cube's position
-    vec2 localScreenSpace = (mappedNdc - cubePosition.xy);
+    vec2 localScreenSpace = (mappedNdc - uCubePosition.xy);
 
     // applying the aspect ration
     localScreenSpace.x *= aspectRatio;
@@ -44,7 +44,7 @@ export const fragmentShader = `
     localScreenSpace += vec2(0.5);
    
     // scale UVs from center
-    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -cubeViewPosition.z / 5. / cubeScale.x) + vec2(0.5);
+    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -uCubeViewPosition.z / 5. / uCubeScale.x) + vec2(0.5);
     
     // Sample the texture with centered UVs
     gl_FragColor = texture2D(uvTexture, localScreenSpace);

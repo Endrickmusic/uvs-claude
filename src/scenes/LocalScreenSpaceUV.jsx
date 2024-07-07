@@ -9,10 +9,9 @@ import { vertexShader, fragmentShader } from "../shaders/localScreenSpaceUV"
 const LocalScreenSpaceUVMaterial = shaderMaterial(
   {
     uResolution: new THREE.Vector2(),
-    cubePosition: new THREE.Vector3(),
-    cubeViewPosition: new THREE.Vector3(),
-    cubeBounds: new THREE.Vector3(),
-    cubeScale: new THREE.Vector3(),
+    uCubePosition: new THREE.Vector3(),
+    uCubeViewPosition: new THREE.Vector3(),
+    uCubeScale: new THREE.Vector3(),
     uvTexture: null,
     dpr: { value: window.devicePixelRatio },
   },
@@ -77,13 +76,13 @@ const LocalScreenSpaceUV = () => {
       const cubeScreenPosition = cubeWorldPosition.project(camera)
       // console.log(cubeScreenPosition)
 
-      materialRef.current.cubePosition.copy(cubeScreenPosition)
+      materialRef.current.uCubePosition.copy(cubeScreenPosition)
 
-      materialRef.current.cubeViewPosition.copy(viewPosition)
+      materialRef.current.uCubeViewPosition.copy(viewPosition)
 
       console.log(cubeScreenPosition.z)
 
-      materialRef.current.cubeScale.copy(meshRef.current.scale)
+      materialRef.current.uCubeScale.copy(meshRef.current.scale)
     }
   })
 
