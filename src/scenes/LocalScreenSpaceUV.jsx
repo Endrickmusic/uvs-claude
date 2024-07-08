@@ -53,8 +53,8 @@ const LocalScreenSpaceUV = () => {
       const x = Math.cos(angle) * radius
       const y = Math.sin(angle) * radius
 
-      meshRef.current.position.x = x
-      meshRef.current.position.y = y
+      // meshRef.current.position.x = x
+      // meshRef.current.position.y = y
 
       const cubeWorldPosition = meshRef.current.getWorldPosition(
         new THREE.Vector3()
@@ -97,6 +97,11 @@ const LocalScreenSpaceUV = () => {
       materialRef.current.uInverseModelMat
         .copy(meshRef.current.matrixWorld)
         .invert()
+
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
+        camera.quaternion
+      )
+      materialRef.current.uForward.copy(forward)
     }
   })
 

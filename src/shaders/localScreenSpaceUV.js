@@ -10,6 +10,8 @@ export const vertexShader = `
 
   void main() {
     vClipPosition = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vRayOrigin = uInverseModelMat * vec4(uCamPos, 1.0);
+    vHitPos = position;
     gl_Position = vClipPosition;
   }
 `
@@ -31,8 +33,8 @@ export const fragmentShader = `
   const float TWO_PI = 2.0 * PI;
   const int LOOP = 16;
 
-  #define MAX_STEPS 40
-  #define MAX_DIST 40.
+  #define MAX_STEPS 400
+  #define MAX_DIST 400.
   #define SURF_DIST 1e-3
   #define samples 32
   #define LOD 
@@ -106,7 +108,8 @@ export const fragmentShader = `
     localScreenSpace += vec2(0.5);
    
     // scale UVs from center
-    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -uCubeViewPosition.z / 5. / uCubeScale.x) + vec2(0.5);
+    // localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -uCubeViewPosition.z / uCubeScale.x / 14.) + vec2(0.5);
+    localScreenSpace = ((localScreenSpace - vec2(0.5)) *  -uCubeViewPosition.z / uCubeScale.x / 14.);
     
     vec2 uv = localScreenSpace;
 
@@ -120,7 +123,26 @@ export const fragmentShader = `
 		// // The ray direction is constant and points towards the target
 		vec3 rd = normalize(uForward);
 
+    float d = Raymarch(ro, rd);
+
+		vec3 col = vec3(0.0); 
+
+    if ( d >= MAX_DIST )
+			// discard;
+			col = vec3(0.5);
+		else {
+			vec3 p = ro + rd * d;
+			vec3 n = GetNormal(p);
+			col.rgb = n;
+		}
+    
+    gl_FragColor = vec4(col, 1.0);
+    // gl_FragColor = vec4(rd, 1.0);
+		// gl_FragColor = vec4(0., 0., 1., 1.0);
+		// gl_FragColor = vec4(uv, 0.0, 1.0);
+
     // Sample the texture with centered UVs
-    gl_FragColor = texture2D(uvTexture, localScreenSpace);
+    // gl_FragColor = texture2D(uvTexture, localScreenSpace);
+    // gl_FragColor = texture2D(uvTexture, uv);
   }
 `

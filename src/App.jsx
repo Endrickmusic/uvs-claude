@@ -22,7 +22,12 @@ function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <Canvas camera={{ position: [0, 0, -5] }}>
+      <Canvas
+        orthographic
+        shadows
+        camera={{ position: [0, 0, -15], zoom: 100 }}
+      >
+        {/* <Canvas camera={{ position: [0, 0, -5] }}> */}
         <Scene />
         <OrbitControls />
       </Canvas>
