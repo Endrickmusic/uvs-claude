@@ -88,6 +88,15 @@ const LocalScreenSpaceUV = () => {
       materialRef.current.uInverseModelMat
         .copy(meshRef.current.matrixWorld)
         .invert()
+
+      materialRef.current.uCamPos.copy(camera.position)
+      materialRef.current.uCamToWorldMat.copy(camera.matrixWorld)
+      materialRef.current.uCamInverseProjMat.copy(
+        camera.projectionMatrixInverse
+      )
+      materialRef.current.uInverseModelMat
+        .copy(meshRef.current.matrixWorld)
+        .invert()
     }
   })
 
