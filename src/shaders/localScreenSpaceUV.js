@@ -10,8 +10,11 @@ export const vertexShader = `
 
   void main() {
     vClipPosition = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vec4 worldPosition = modelViewMatrix * vec4(position, 1.0);
     vRayOrigin = uInverseModelMat * vec4(uCamPos, 1.0);
+    // vRayOrigin = vec4(uCamPos, 1.0);
     vHitPos = position;
+    // vHitPos = worldPosition.xyz;
     gl_Position = vClipPosition;
   }
 `

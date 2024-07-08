@@ -29,6 +29,11 @@ const LocalScreenSpaceUV = () => {
   const meshRef = useRef()
   const materialRef = useRef()
   const { size } = useThree()
+  const forward = new THREE.Vector3(0, 0, -1)
+  const objectSpaceForward = new THREE.Vector3()
+  const tempMatrix = new THREE.Matrix4()
+  const worldDirection = new THREE.Vector3()
+  const viewDirection = new THREE.Vector3()
 
   // Load a UV grid texture
   const texture = useLoader(THREE.TextureLoader, "./textures/UVs_03.jpg")
@@ -98,10 +103,27 @@ const LocalScreenSpaceUV = () => {
         .copy(meshRef.current.matrixWorld)
         .invert()
 
-      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
-        camera.quaternion
-      )
-      materialRef.current.uForward.copy(forward)
+      // const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
+      //   camera.quaternion
+      // )
+      // materialRef.current.uForward.copy(forward)
+      // camera.getWorldDirection(forward)
+      // materialRef.current.uForward.copy(forward)
+      // In your render or update loop:
+      camera.getWorldDirection(forward)
+      tempMatrix.copy(meshRef.current.matrixWorld).invert()
+      objectSpaceForward.copy(forward).applyMatrix4(tempMatrix).normalize()
+
+      // Convert to view space
+      viewDirection.copy(forward)
+      viewDirection.applyMatrix4(camera.matrixWorldInverse)
+
+      // Normalize the result
+      viewDirection.normalize()
+
+      // Pass to shader
+
+      materialRef.current.uniforms.uForward.value.copy(forward)
     }
   })
 
